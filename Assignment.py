@@ -45,7 +45,11 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
         lb_end += reference[1] + 1
         search_buffer_value = string[sb_start:sb_end]
         lookahead_buffer_value = string[lb_start:lb_end]
-    return output_list
+    output = ""
+    for i in output_list:
+        output += i[0] + "," + i[1] + "," + i[2] + "|"
+    print(output)
+    return output
 
 
 def PtoG_matrix(P, num):
@@ -95,7 +99,3 @@ def encoder (code):
 if __name__ == "__main__":
     #print(lempel_ziv(9, 9, "001010210210212021021200"))
     #lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
-
-    P = [[0,1,1], [1,0,1], [1,1,0]]
-    G = PtoG_matrix(P, 3)
-    print(DtoC([0, 0, 1], G))
