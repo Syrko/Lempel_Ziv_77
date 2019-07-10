@@ -1,5 +1,7 @@
 import json
 import base64
+import numpy
+import array
 
 ###################################
 # Sender section                  #
@@ -47,6 +49,25 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
     return output_list
 
 
+def inputer():
+    k = input("Input k")
+    k = int(k)
+    table_list = list()
+    for i in range(k):
+        table_list.append(input("Input table row #{}: ".format(i)))
+    P = array.array('i')
+    tempAr = array.array('i')
+    for i in range(k):
+        temp = table_list[i]
+        for j in temp:
+            tempAr.append(temp[j])
+        P.append(tempAr)
+
+    for i in range(k):
+        for j in range(len(tempAr)):
+            print(P[i][j])
+
+
 def sender():
     print("Input search buffer size: ")
     search_buffer_size = input()
@@ -80,5 +101,6 @@ def encoder (code):
 
 # Program start
 if __name__ == "__main__":
+    inputer()
     print(lempel_ziv(9, 9, "001010210210212021021200"))
     lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
