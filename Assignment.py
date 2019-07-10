@@ -1,5 +1,6 @@
 import json
 import base64
+import numpy
 
 ###################################
 # Sender section                  #
@@ -47,6 +48,18 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
     return output_list
 
 
+def PtoG_matrix(P, num):
+    I = numpy.eye(num)
+    G = numpy.concatenate((I, numpy.array(P)), axis=1)
+    return G
+
+
+def DtoC(d, G):
+    C = numpy.matmul(d, G)
+    C = numpy.mod(C, [2])
+    return C
+
+
 def sender():
     print("Input search buffer size: ")
     search_buffer_size = input()
@@ -80,5 +93,9 @@ def encoder (code):
 
 # Program start
 if __name__ == "__main__":
-    print(lempel_ziv(9, 9, "001010210210212021021200"))
-    lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
+    #print(lempel_ziv(9, 9, "001010210210212021021200"))
+    #lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
+
+    P = [[0,1,1], [1,0,1], [1,1,0]]
+    G = PtoG_matrix(P, 3)
+    print(DtoC([0, 0, 1], G))
