@@ -70,6 +70,10 @@ def lz_decoder(search_buffer_size, tuple_list):
     print(output_string)
 
 
+def encoder (code):
+    encoded = base64.b64encode(code.encode('ascii'))
+    return json.dumps({"compression_algorithm": "LZ77", "code": {"name": "linear", "P": "[%s]" % encoded}})
+
 
 # Program start
 if __name__ == "__main__":
