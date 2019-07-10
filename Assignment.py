@@ -2,6 +2,7 @@ import json
 import base64
 import numpy
 import array
+import random
 
 ###################################
 # Sender section                  #
@@ -49,24 +50,37 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
     return output_list
 
 
+def inputer(compressed):
+    k = int(input("Input table size: "))
+    matrix_list = []
+    for i in range(k):
+        matrix_list.append(input("Input row: "))
+    P = []
+    for i in range(k):
+        temp_list = []
+        for j in matrix_list[i]:
+            temp_list.append(int(j))
+        P.append(temp_list)
+    n = int(input("Input word length: "))
+    words_list = [compressed[i:i+n] for i in range(0, len(compressed), n)]
+    G = PtoG_matrix(P, n)
+    for i in range(len(words_list)):
+        code_words = DtoC(words_list[i], G)
+    noise = int(input("Input noise amount: "))
+    counter = 0
+    for i in range(len(code_words)):
+        for j in range(len(code_words[i])):
+            rand = random.randint(0, 1)
+            counter = counter + 1
+            if rand == 1:
+                if code_words[j] == 0:
+                    code_words[j] = 1
+                else:
+                    code_words[j] = 0
+                counter = counter + 1
+        if counter == noise:
+            break
 
-def inputer():
-    k = input("Input k")
-    k = int(k)
-    table_list = list()
-    for i in range(k):
-        table_list.append(input("Input table row #{}: ".format(i)))
-    P = array.array('i')
-    tempAr = array.array('i')
-    for i in range(k):
-        temp = table_list[i]
-        for j in temp:
-            tempAr.append(temp[j])
-        P.append(tempAr)
-
-    for i in range(k):
-        for j in range(len(tempAr)):
-            print(P[i][j])
 
 def PtoG_matrix(P, num):
     I = numpy.eye(num)
@@ -116,7 +130,7 @@ def encoder (code):
 if __name__ == "__main__":
     #print(lempel_ziv(9, 9, "001010210210212021021200"))
     #lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
-
+    inputer('100010010101')
     P = [[0,1,1], [1,0,1], [1,1,0]]
     G = PtoG_matrix(P, 3)
     print(DtoC([0, 0, 1], G))
