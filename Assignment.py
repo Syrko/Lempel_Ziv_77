@@ -1,6 +1,7 @@
 import json
 import base64
 import numpy
+import array
 
 ###################################
 # Sender section                  #
@@ -52,6 +53,25 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
     return output
 
 
+
+def inputer():
+    k = input("Input k")
+    k = int(k)
+    table_list = list()
+    for i in range(k):
+        table_list.append(input("Input table row #{}: ".format(i)))
+    P = array.array('i')
+    tempAr = array.array('i')
+    for i in range(k):
+        temp = table_list[i]
+        for j in temp:
+            tempAr.append(temp[j])
+        P.append(tempAr)
+
+    for i in range(k):
+        for j in range(len(tempAr)):
+            print(P[i][j])
+
 def PtoG_matrix(P, num):
     I = numpy.eye(num)
     G = numpy.concatenate((I, numpy.array(P)), axis=1)
@@ -62,6 +82,7 @@ def DtoC(d, G):
     C = numpy.matmul(d, G)
     C = numpy.mod(C, [2])
     return C
+
 
 
 def sender():
