@@ -25,6 +25,8 @@ def get_longest_match_ref(search_buffer_value, lookahead_buffer_value):
 def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
     # Function implementing the Lempel-Ziv 77 algorithm
     # Initializing search buffer with '0'
+    search_buffer_size = int(search_buffer_size)
+    lookahead_buffer_size = int(lookahead_buffer_size)
     search_buffer_value = search_buffer_size * "0"
     lookahead_buffer_value = string[0:lookahead_buffer_size]
     string = search_buffer_value + string
@@ -54,7 +56,7 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
     return output
 
 
-def inputer(compressed):
+def linear_code(compressed):
     k = int(input("Input table size: "))
     matrix_list = []
     for i in range(k):
@@ -67,9 +69,12 @@ def inputer(compressed):
         P.append(temp_list)
     n = int(input("Input word length: "))
     words_list = [compressed[i:i+n] for i in range(0, len(compressed), n)]
+    print(words_list)
+    code_words = []
     G = PtoG_matrix(P, n)
-    for i in range(len(words_list)):
-        code_words = DtoC(words_list[i], G)
+    for i in words_list:
+        code_words.append(DtoC(i, G))
+    '''
     noise = int(input("Input noise amount: "))
     counter = 0
     for i in range(len(code_words)):
@@ -83,7 +88,10 @@ def inputer(compressed):
                     code_words[j] = 0
                 counter = counter + 1
         if counter == noise:
-            break
+            break'''
+
+    print(code_words)
+    # return code_words
 
 
 def PtoG_matrix(P, num):
@@ -93,9 +101,17 @@ def PtoG_matrix(P, num):
 
 
 def DtoC(d, G):
-    C = numpy.matmul(d, G)
+    temp_list = list(d)
+    temp_array = []
+    for i in temp_list:
+        temp_array.append(int(i))
+    D = numpy.array(temp_array)
+    C = numpy.matmul(D, G)
     C = numpy.mod(C, [2])
-    return C
+    temp = []
+    for i in numpy.array(C).tolist():
+        temp.append(int(i))
+    return temp
 
 
 
@@ -106,8 +122,13 @@ def sender():
     lookahead_buffer_size = input()
     print("Input file: ")
     file_name = input()
-    file = (file_name, "r")
-    lempel_ziv(search_buffer_size, lookahead_buffer_size, file.read())
+    file = open(file_name, "r")
+    # Lempel-Ziv Compressed string
+    lz = lempel_ziv(search_buffer_size, lookahead_buffer_size, file.read())
+    # Casting compressed string as bytearray
+    lz_bytes = ' '.join(format(ord(x), 'b') for x in lz)
+    print("Compression Successful")
+    linear_code("00" + lz_bytes.replace(" ", ""))
 
 
 ###################################
@@ -131,18 +152,19 @@ def lz_decoder(search_buffer_size, bytes_for_list):
     print(output_string)
 
 
-def encoder (code):
+def encoder(code):
     encoded = base64.b64encode(code.encode('ascii'))
     return json.dumps({"compression_algorithm": "LZ77", "code": {"name": "linear", "P": "[%s]" % encoded}})
 
 
 # Program start
 if __name__ == "__main__":
-    #print(lempel_ziv(9, 9, "001010210210212021021200"))
+    '''#print(lempel_ziv(9, 9, "001010210210212021021200"))
     #lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
-    inputer('100010010101')
+    linear_code('100010010101')
     P = [[0,1,1], [1,0,1], [1,1,0]]
     G = PtoG_matrix(P, 3)
     print(DtoC([0, 0, 1], G))
     print(lempel_ziv(9, 9, "001010210210212021021200"))
-    lz_decoder(9, bytearray(lempel_ziv(9, 9, "001010210210212021021200"), encoding='utf-8'))
+    lz_decoder(9, bytearray(lempel_ziv(9, 9, "001010210210212021021200"), encoding='utf-8'))'''
+    sender()
