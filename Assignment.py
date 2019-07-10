@@ -46,10 +46,10 @@ def lempel_ziv(search_buffer_size, lookahead_buffer_size, string):
         lb_end += reference[1] + 1
         search_buffer_value = string[sb_start:sb_end]
         lookahead_buffer_value = string[lb_start:lb_end]
+    # Formats lempel-ziv list of tuples to string in order to cast as bytes
     output = ""
     for i in output_list:
-        output += i[0] + "," + i[1] + "," + i[2] + "|"
-    print(output)
+        output += str(i[0]) + "," + str(i[1]) + "," + i[2] + "|"
     return output
 
 
@@ -100,7 +100,13 @@ def sender():
 # Recipient section               #
 ###################################
 
-def lz_decoder(search_buffer_size, tuple_list):
+def lz_decoder(search_buffer_size, bytes_for_list):
+    string = str(bytes_for_list, 'utf-8')
+    tuple_list = []
+    temp_list = string.split("|")
+    for i in temp_list[:-1]:
+        temp = i.split(",")
+        tuple_list.append((int(temp[0]), (int(temp[1])), temp[2]))
     output_string = search_buffer_size * "0"
     sb_pointer = 0
     for i in tuple_list:
@@ -118,5 +124,5 @@ def encoder (code):
 
 # Program start
 if __name__ == "__main__":
-    #print(lempel_ziv(9, 9, "001010210210212021021200"))
-    #lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
+    print(lempel_ziv(9, 9, "001010210210212021021200"))
+    lz_decoder(9, bytearray(lempel_ziv(9, 9, "001010210210212021021200"), encoding='utf-8'))
