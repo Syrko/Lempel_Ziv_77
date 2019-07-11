@@ -1,7 +1,6 @@
 import json
 import base64
 import numpy
-import array
 import random
 
 ###################################
@@ -69,29 +68,24 @@ def linear_code(compressed):
         P.append(temp_list)
     n = int(input("Input word length: "))
     words_list = [compressed[i:i+n] for i in range(0, len(compressed), n)]
-    print(words_list)
     code_words = []
     G = PtoG_matrix(P, n)
     for i in words_list:
         code_words.append(DtoC(i, G))
-    '''
     noise = int(input("Input noise amount: "))
-    counter = 0
     for i in range(len(code_words)):
+        counter = 0
         for j in range(len(code_words[i])):
             rand = random.randint(0, 1)
-            counter = counter + 1
             if rand == 1:
-                if code_words[j] == 0:
-                    code_words[j] = 1
+                if code_words[i][j] == 0:
+                    code_words[i][j] = 1
                 else:
-                    code_words[j] = 0
+                    code_words[i][j] = 0
                 counter = counter + 1
-        if counter == noise:
-            break'''
-
-    print(code_words)
-    # return code_words
+            if counter == noise:
+                break
+    return code_words
 
 
 def PtoG_matrix(P, num):
