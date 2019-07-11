@@ -7,6 +7,10 @@ import random
 # Sender section                  #
 ###################################
 
+# Global Variables
+lookahead_buffer_size = 0
+search_buffer_size = 0
+
 
 def get_longest_match_ref(search_buffer_value, lookahead_buffer_value):
     # Find longest matching substring in window
@@ -85,7 +89,13 @@ def linear_code(compressed):
                 counter = counter + 1
             if counter == noise:
                 break
-    return code_words
+    output = ""
+    for i in code_words:
+        for j in range(n):
+            output += str(i[j]) + ','
+        output = output[:-1]
+        output += '|'
+    encoder(output, P, n, noise)
 
 
 def PtoG_matrix(P, num):
@@ -107,6 +117,15 @@ def DtoC(d, G):
         temp.append(int(i))
     return temp
 
+
+def encoder(code, P, word_length, noise_amount):
+    encoded = base64.b64encode(code.encode('ascii'))
+    # return json.dumps({"compression_algorithm": "LZ77", "code": {"name": "linear", "P": "[%s]" % encoded}})
+    data = json.dumps({"compression_algorithm": {"name": "LZ77", "Window size": str(lookahead_buffer_size + search_buffer_size), "Search Buffer Size": str(search_buffer_size), "Lookahead Buffer Size": str(lookahead_buffer_size)}
+                , "code": {"name": "linear", "P": str(P), "Word Length": str(word_length), "Noise Amount": str(noise_amount)}
+                , "Encoded String": str(encoded)})
+    with open('data.txt', 'w') as outfile:
+        json.dump(data, outfile)
 
 
 def sender():
@@ -144,11 +163,6 @@ def lz_decoder(search_buffer_size, bytes_for_list):
         output_string += i[2]
         sb_pointer += i[1] + 1
     print(output_string)
-
-
-def encoder(code):
-    encoded = base64.b64encode(code.encode('ascii'))
-    return json.dumps({"compression_algorithm": "LZ77", "code": {"name": "linear", "P": "[%s]" % encoded}})
 
 
 # Program start
