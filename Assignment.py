@@ -72,6 +72,8 @@ def linear_code(compressed):
         P.append(temp_list)
     n = int(input("Input word length: "))
     words_list = [compressed[i:i+n] for i in range(0, len(compressed), n)]
+    print(compressed)
+    print(words_list)
     code_words = []
     G = PtoG_matrix(P, n)
     for i in words_list:
@@ -121,17 +123,55 @@ def DtoC(d, G):
 def encoder(code, P, word_length, noise_amount):
     encoded = base64.b64encode(code.encode('ascii'))
     # return json.dumps({"compression_algorithm": "LZ77", "code": {"name": "linear", "P": "[%s]" % encoded}})
-    data = json.dumps({"compression_algorithm": {"name": "LZ77", "Window size": str(lookahead_buffer_size + search_buffer_size), "Search Buffer Size": str(search_buffer_size), "Lookahead Buffer Size": str(lookahead_buffer_size)}
-                , "code": {"name": "linear", "P": str(P), "Word Length": str(word_length), "Noise Amount": str(noise_amount)}
-                , "Encoded String": str(encoded)})
-    with open('data.txt', 'w') as outfile:
+    '''data = json.dumps({"compression_algorithm": {"name": "LZ77", "Window size": str(int(lookahead_buffer_size) + int(search_buffer_size)), "Search Buffer Size": str(search_buffer_size), "Lookahead Buffer Size": str(lookahead_buffer_size)}
+                , "code": {"name": "linear", "P":str(P), "Word Length": str(word_length), "Noise Amount": str(noise_amount)}
+                , "Encoded String": str(encoded)})'''
+    '''data = {}
+    data['compression_algorithm'] = []
+    data['compression_algorithm'].append({
+        'name': 'LZ77',
+        'Window Size': str(int(lookahead_buffer_size) + int(search_buffer_size)),
+        'Search Buffer Size': str(search_buffer_size),
+        'Lookahead Buffer Size': str(lookahead_buffer_size)
+    })
+    data['code'] = []
+    data['code'].append({
+        'name': 'linear',
+        'P': str(P),
+        'Word Length': str(word_length),
+        'Noise Amount': str(noise_amount)
+    })
+    data['Encoded String'] = []
+    data['Encoded String'].append({'Encoded String': str(encoded)})'''
+    data = {}
+    data['Statistics'] = []
+    data['Statistics'].append({
+        'compression_algorithm': {
+            'name': 'LZ77',
+            'Window Size': str(int(lookahead_buffer_size) + int(search_buffer_size)),
+            'Search Buffer Size': str(search_buffer_size),
+            'Lookahead Buffer Size': str(lookahead_buffer_size)
+        },
+        'code': {
+            'name': 'linear',
+            'P': str(P),
+            'Word Length': str(word_length),
+            'Noise Amount': str(noise_amount)
+        },
+        'Encoded String': {'Encoded String': str(encoded)}
+    })
+
+    with open('data.csv', 'w') as outfile:
         json.dump(data, outfile)
+    # return json.dumps(data)
 
 
 def sender():
     print("Input search buffer size: ")
+    global search_buffer_size
     search_buffer_size = input()
     print("Input look-ahead buffer size: ")
+    global lookahead_buffer_size
     lookahead_buffer_size = input()
     print("Input file: ")
     file_name = input()
@@ -141,6 +181,13 @@ def sender():
     # Casting compressed string as bytearray
     lz_bytes = ' '.join(format(ord(x), 'b') for x in lz)
     print("Compression Successful")
+    print(len(lz_bytes[lz_bytes.rfind(' ')+1:]))
+    mod = numpy.mod(len(lz_bytes[lz_bytes.rfind(' ')+1:]), 3)
+    zeros_to_add = 0
+    if mod != 0:
+        zeros_to_add = 3 - mod
+    print(lz_bytes)
+    print("00" + lz_bytes.replace(" ", "-"))
     linear_code("00" + lz_bytes.replace(" ", ""))
 
 
@@ -163,6 +210,10 @@ def lz_decoder(search_buffer_size, bytes_for_list):
         output_string += i[2]
         sb_pointer += i[1] + 1
     print(output_string)
+
+
+def recipient(data):
+    return
 
 
 # Program start
