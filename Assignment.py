@@ -21,7 +21,7 @@ def get_longest_match_ref(search_buffer_value, lookahead_buffer_value):
             if lookahead_buffer_value.find(window[i: i+j]) > -1:
                 ref_list.append((i, j))
     ref_list.sort(key=lambda tup: tup[1], reverse=True)
-    # return tuple of (index, length) with the greatest length
+    # Return tuple of (index, length) with the greatest length
     return ref_list[0]
 
 
@@ -71,9 +71,13 @@ def linear_code(compressed):
             temp_list.append(int(j))
         P.append(temp_list)
     n = int(input("Input word length: "))
+    ########################################################
+    # Add 0s at the start of the binary so it is dividable #
+    ########################################################
+    zeros_to_add = len(compressed) % n
+    compressed = zeros_to_add * "0" + compressed
+    ########################################################
     words_list = [compressed[i:i+n] for i in range(0, len(compressed), n)]
-    print(compressed)
-    print(words_list)
     code_words = []
     G = PtoG_matrix(P, n)
     for i in words_list:
@@ -122,27 +126,6 @@ def DtoC(d, G):
 
 def encoder(code, P, word_length, noise_amount):
     encoded = base64.b64encode(code.encode('ascii'))
-    # return json.dumps({"compression_algorithm": "LZ77", "code": {"name": "linear", "P": "[%s]" % encoded}})
-    '''data = json.dumps({"compression_algorithm": {"name": "LZ77", "Window size": str(int(lookahead_buffer_size) + int(search_buffer_size)), "Search Buffer Size": str(search_buffer_size), "Lookahead Buffer Size": str(lookahead_buffer_size)}
-                , "code": {"name": "linear", "P":str(P), "Word Length": str(word_length), "Noise Amount": str(noise_amount)}
-                , "Encoded String": str(encoded)})'''
-    '''data = {}
-    data['compression_algorithm'] = []
-    data['compression_algorithm'].append({
-        'name': 'LZ77',
-        'Window Size': str(int(lookahead_buffer_size) + int(search_buffer_size)),
-        'Search Buffer Size': str(search_buffer_size),
-        'Lookahead Buffer Size': str(lookahead_buffer_size)
-    })
-    data['code'] = []
-    data['code'].append({
-        'name': 'linear',
-        'P': str(P),
-        'Word Length': str(word_length),
-        'Noise Amount': str(noise_amount)
-    })
-    data['Encoded String'] = []
-    data['Encoded String'].append({'Encoded String': str(encoded)})'''
     data = {}
     data['Statistics'] = []
     data['Statistics'].append({
@@ -161,9 +144,9 @@ def encoder(code, P, word_length, noise_amount):
         'Encoded String': {'Encoded String': str(encoded)}
     })
 
-    with open('data.csv', 'w') as outfile:
+    with open('data.txt', 'w') as outfile:
         json.dump(data, outfile)
-    # return json.dumps(data)
+    return json.dumps(data)
 
 
 def sender():
@@ -178,17 +161,11 @@ def sender():
     file = open(file_name, "r")
     # Lempel-Ziv Compressed string
     lz = lempel_ziv(search_buffer_size, lookahead_buffer_size, file.read())
-    # Casting compressed string as bytearray
-    lz_bytes = ' '.join(format(ord(x), 'b') for x in lz)
+    # Casting compressed string as byte-array
+    lz_bytes = ' '.join('{0:08b}'.format(ord(x), 'b') for x in lz)
+    lz_bytes = lz_bytes.replace(" ", "")
     print("Compression Successful")
-    print(len(lz_bytes[lz_bytes.rfind(' ')+1:]))
-    mod = numpy.mod(len(lz_bytes[lz_bytes.rfind(' ')+1:]), 3)
-    zeros_to_add = 0
-    if mod != 0:
-        zeros_to_add = 3 - mod
-    print(lz_bytes)
-    print("00" + lz_bytes.replace(" ", "-"))
-    linear_code("00" + lz_bytes.replace(" ", ""))
+    linear_code(lz_bytes)
 
 
 ###################################
@@ -218,12 +195,4 @@ def recipient(data):
 
 # Program start
 if __name__ == "__main__":
-    '''#print(lempel_ziv(9, 9, "001010210210212021021200"))
-    #lz_decoder(9, lempel_ziv(9, 9, "001010210210212021021200"))
-    linear_code('100010010101')
-    P = [[0,1,1], [1,0,1], [1,1,0]]
-    G = PtoG_matrix(P, 3)
-    print(DtoC([0, 0, 1], G))
-    print(lempel_ziv(9, 9, "001010210210212021021200"))
-    lz_decoder(9, bytearray(lempel_ziv(9, 9, "001010210210212021021200"), encoding='utf-8'))'''
     sender()
