@@ -101,7 +101,7 @@ def linear_code(compressed):
             output += str(i[j]) + ','
         output = output[:-1]
         output += '|'
-    encoder(output, P, n, noise)
+    return encoder(output, P, n, noise)
 
 
 def PtoG_matrix(P, num):
@@ -144,7 +144,9 @@ def encoder(code, P, word_length, noise_amount):
         'Encoded String': {'Encoded String': str(encoded)}
     })
 
-    with open('data.txt', 'w') as outfile:
+    with open('encodedData_json.json', 'w') as outfile:
+        json.dump(data, outfile)
+    with open('encodedData_json.txt', 'w') as outfile:
         json.dump(data, outfile)
     return json.dumps(data)
 
@@ -165,7 +167,8 @@ def sender():
     lz_bytes = ' '.join('{0:08b}'.format(ord(x), 'b') for x in lz)
     lz_bytes = lz_bytes.replace(" ", "")
     print("Compression Successful")
-    linear_code(lz_bytes)
+    to_send = linear_code(lz_bytes)
+    recipient(to_send)
 
 
 ###################################
@@ -190,6 +193,7 @@ def lz_decoder(search_buffer_size, bytes_for_list):
 
 
 def recipient(data):
+    print(str(data))
     return
 
 
